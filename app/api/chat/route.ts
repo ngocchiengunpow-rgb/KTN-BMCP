@@ -11,11 +11,12 @@ export async function POST(req: Request) {
 
     // Extract custom data from messages to handle multimodal inputs
     const mappedMessages = messages.map((m: any) => {
+       const textContent = m.parts ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') : (m.content || '');
        if (m.data && m.data.attachment) {
          return {
            role: m.role,
            content: [
-             { type: 'text', text: m.content },
+             { type: 'text', text: textContent },
              { 
                type: 'image', 
                image: new URL(m.data.attachment) // Vercel AI SDK handles data URLs seamlessly
@@ -23,7 +24,7 @@ export async function POST(req: Request) {
            ]
          };
        }
-       return { role: m.role, content: m.content };
+       return { role: m.role, content: textContent };
     });
 
     const result = await streamText({
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
       messages: mappedMessages,
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('Error in chat API:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500, headers: { 'Content-Type': 'application/json' } });

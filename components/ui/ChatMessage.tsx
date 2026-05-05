@@ -6,14 +6,17 @@ import remarkGfm from 'remark-gfm';
 import 'katex/dist/katex.min.css';
 import { cn } from '@/lib/utils';
 import { Bot, User } from 'lucide-react';
-import { Message } from 'ai';
+import { UIMessage } from 'ai';
 
 interface ChatMessageProps {
-  message: Message & { data?: { attachment: string; type: string } };
+  message: UIMessage & { data?: { attachment: string; type: string } };
 }
 
 export function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user';
+  
+  // Extract text from parts array since UIMessage in ai@6+ no longer has content property directly
+  const textContent = message.parts?.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n') || '';
 
   return (
     <div className={cn("flex w-full gap-3 p-4", isUser ? "justify-end" : "justify-start")}>
@@ -24,13 +27,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
       )}
       <div className={cn("flex flex-col space-y-2 text-sm max-w-[85%]", isUser ? "items-end" : "items-start")}>
         <div className={cn("px-4 py-3 rounded-2xl overflow-hidden", isUser ? "bg-slate-100 text-slate-900 rounded-tr-sm" : "bg-white border border-slate-200 text-slate-800 rounded-tl-sm shadow-sm")}>
-          <ReactMarkdown
-            remarkPlugins={[remarkMath, remarkGfm]}
-            rehypePlugins={[rehypeKatex]}
-            className="prose prose-sm prose-slate max-w-none break-words prose-p:leading-relaxed prose-pre:p-0 prose-pre:bg-slate-900 prose-pre:text-slate-50"
-          >
-            {message.content}
-          </ReactMarkdown>
+          <div className="prose prose-sm prose-slate max-w-none break-words prose-p:leading-relaxed prose-pre:p-0 prose-pre:bg-slate-900 prose-pre:text-slate-50">
+            <ReactMarkdown
+              remarkPlugins={[remarkMath, remarkGfm]}
+              rehypePlugins={[rehypeKatex]}
+            >
+              {textContent}
+            </ReactMarkdown>
+          </div>
           
           {message.data?.attachment && (
             <div className="mt-3">
