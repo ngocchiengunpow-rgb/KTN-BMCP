@@ -31,3 +31,10 @@ export async function login(prevState: any, formData: FormData) {
 
   return { error: 'Tên đăng nhập hoặc mật khẩu không đúng.' }
 }
+
+export async function logout() {
+  const cookieStore = await cookies()
+  cookieStore.delete('vmu_auth')
+  cookieStore.delete('vmu_role')
+  redirect('/login')
+}

@@ -7,16 +7,10 @@ import {
   MessageSquare, FileText, CheckSquare, Megaphone
 } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { logout } from "@/app/login/actions";
 
 export function Sidebar({ role = "student" }: { role?: string }) {
   const pathname = usePathname();
-
-  const handleLogout = async () => {
-    // Basic logout handling for mockup purposes
-    document.cookie = "vmu_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    document.cookie = "vmu_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    window.location.href = "/login";
-  };
 
   const isMaster = role === "master";
 
@@ -113,13 +107,15 @@ export function Sidebar({ role = "student" }: { role?: string }) {
       </div>
 
       <div className="p-4 border-t border-slate-100">
-        <button 
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 w-full hover:bg-slate-50 rounded-xl transition-colors"
-        >
-          <LogOut className="h-5 w-5" />
-          Đăng xuất
-        </button>
+        <form action={logout}>
+          <button 
+            type="submit"
+            className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 w-full hover:bg-slate-50 rounded-xl transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+            Đăng xuất
+          </button>
+        </form>
 
         {!isMaster && (
           <div className="mt-4 bg-[#003366] rounded-2xl p-5 text-white relative overflow-hidden">
